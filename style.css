@@ -1,0 +1,92 @@
+/*
+======================================
+サイト全般レイアウト
+======================================
+*/
+/*リセットCSS*/
+*{
+    text-decoration: none;
+    padding: 0px;
+    margin: 0px;
+    color: rgba(0,0,0,0.87);
+}
+.site-width{
+    width: 100vw;
+}
+
+#main{
+/*    background-color: #1BE7FF;*/
+    background-color: #F9C80E;
+
+}
+
+/*
+======================================
+キャラクター選択画面
+======================================
+*/
+
+.characters-select-area img{
+    width: 100%;
+    height: 100%;
+}
+
+.character-area{
+    float: left;
+}
+
+input[type=radio] {
+    display: none;
+}
+
+.panel-ceo{
+    width: 33vw;
+    display: block;
+    float: left;
+    box-sizing: border-box;
+}
+
+#container-top-characters{
+    margin: 0 auto;
+    width: 100vw;
+    overflow: hidden;
+}
+
+#container-bottom-characters{
+    margin: 0 auto;
+    width: 66vw;
+    overflow: hidden;
+}
+
+.btn{
+    width: 50vw;
+    background-color: yellow;
+    margin: 0 auto;
+    display: block;
+    font-size: 6vw;
+}
+
+
+.js-panel-select{
+    border: 5px rgba(0,0,0,0) solid;
+}
+
+.js-btn-prohibid{
+    background-color: #919191;
+}
+
+.js-btn-permit{
+    background-color: ;
+
+}
+
+
+/*
+======================================
+フッター
+======================================
+*/
+
+footer{
+    background-color: #965E0C;
+}
