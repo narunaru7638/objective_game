@@ -11,7 +11,7 @@
     color: rgba(0,0,0,0.87);
 }
 .site-width{
-    width: 100vw;
+    width: 100%;
 }
 
 #main{
@@ -28,7 +28,7 @@
 
 .characters-select-area img{
     width: 100%;
-    height: 100%;
+/*    height: 100%;*/
 }
 
 .character-area{
@@ -74,10 +74,72 @@ input[type=radio] {
 .js-btn-prohibid{
     background-color: #919191;
 }
+/*
 
 .js-btn-permit{
     background-color: ;
 
+}
+*/
+
+/*
+======================================
+メインゲーム画面
+======================================
+*/
+.message-area{
+    background-color: gray;
+    height: 200px;
+    font-size: 20px;
+}
+
+.ceo-status-area img{
+    width: 25%;
+}
+
+/*コマンドエリア*/
+.container-command .btn{
+    width: 20vw;
+    font-size: 5vw;
+}
+
+.container-command form{
+    overflow: hidden;
+    width: 60vw;
+    margin: 0 auto;
+}
+
+.container-command input{
+    float: left;
+}
+
+/*モンスターエリア*/
+
+.monster-area .monster-form-container{
+    width: 90vw;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.monster-area input{
+    float: left;
+    width: 30vw;
+    height: 18%;
+}
+
+
+/*ジョブエリア*/
+
+.job-area .job-form-container{
+    width: 90vw;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.job-area input{
+    float: left;
+    width: 30vw;
+    height: 18%;
 }
 
 
