@@ -20,11 +20,26 @@
 
 }
 
+
+/*
+======================================
+初期画面
+======================================
+*/
+.initial-screen h1{
+    font-size: 5vw;
+}
+
 /*
 ======================================
 キャラクター選択画面
 ======================================
 */
+
+.characters-select-area h1{
+    font-size: 5vw;
+}
+
 
 .characters-select-area img{
     width: 100%;
@@ -87,25 +102,53 @@ input[type=radio] {
 メインゲーム画面
 ======================================
 */
-.message-area{
-    background-color: gray;
-    height: 200px;
-    font-size: 20px;
+
+.container-game-area h1{
+    font-size: 5vw;
+}
+
+/*ステータスエリア*/
+.ceo-status-area{
+    overflow: hidden;
 }
 
 .ceo-status-area img{
     width: 25%;
+    float: left;
 }
+
+.ceo-status-area .status-area{
+    float: left;
+}
+
+.status-area-top{
+    overflow: hidden;
+}
+
+.status-area-top div{
+    float: left;
+}
+
+
+
+/*メッセージエリア*/
+.message-area{
+    background-color: gray;
+    height: 40vw;
+    font-size: 3.5vw;
+    overflow: scroll;
+}
+
 
 /*コマンドエリア*/
 .container-command .btn{
     width: 20vw;
-    font-size: 5vw;
+    font-size: 3.5vw;
 }
 
 .container-command form{
     overflow: hidden;
-    width: 60vw;
+    width: 80vw;
     margin: 0 auto;
 }
 

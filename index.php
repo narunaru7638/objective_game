@@ -1,14 +1,17 @@
 <?php
 
+//ログ出力
 ini_set('log_errors', 'on');
 ini_set('error_log', 'php.log');//
+
+//セッション使用
 session_start();
 
-$human = array();
+//モンスターと仕事格納用
 $monsters = array();
 $jobs = array();
 
-
+//
 class Sex{
     const MAN = 0;
     const WOMAN = 1;
@@ -20,6 +23,7 @@ class Species{
     const DOG = 1;
 }
 
+//
 abstract class Creature{
     
     protected $name;
@@ -325,7 +329,6 @@ $jobs[] = new PowerJob('登山家','img/job06.png', 100, 0, 0, 0);
 $jobs[] = new TechniqueJob('料理','img/job07.png', 100, 0, 0, 0);
 $jobs[] = new TechniqueJob('プロレス','img/job08.png', 100, 0, 0, 0);
 $jobs[] = new PowerJob('野球','img/job09.png', 100, 0, 0, 0);
-
 $jobs[] = new TechniqueJob('イラスト','img/job10.png', 100, 0, 0, 0);
 $jobs[] = new TechniqueJob('執筆','img/job11.png', 100, 0, 0, 0);
 
@@ -336,28 +339,42 @@ $jobs[] = new TechniqueJob('執筆','img/job11.png', 100, 0, 0, 0);
 関数など
 ====================================*/
 
-function createMonster($str){
+function createMonster(){
     global $monsters;
-    $monster = $monsters[$str];
-    $_SESSION['monster'] = $monster;
-}
-
-function createHuman($str){
-    global $humans;
-    $human = $humans[$str];
-    $_SESSION['human'] = $human;
-}
-
-function createAnimal($str){
-    global $animals;
-    $animal = $animals[$str];
-    $_SESSION['animal'] = $animal;
+    $monster = $monsters[mt_rand(0, 3)];//４種類からランダムに作成
+    
+    if(empty($_SESSION['monster1'])){
+        $_SESSION['monster1'] = $monster;
+    }elseif(empty($_SESSION['monster2'])){
+        $_SESSION['monster2'] = $monster;
+    }elseif(empty($_SESSION['monster3'])){
+        $_SESSION['monster3'] = $monster;
+    }else{
+        
+    }
 }
 
 function createCeo($str){
     global $ceos;
     $ceo = $ceos[$str];
     $_SESSION['ceo'] = $ceo;
+}
+
+function createJob(){
+    global $jobs;
+    $job = $jobs[mt_rand(0, 10)];//11種類からランダムに作成
+
+    if(empty($_SESSION['job1'])){
+        $_SESSION['job1'] = $job;
+    }elseif(empty($_SESSION['job2'])){
+        $_SESSION['job2'] = $job;
+    }elseif(empty($_SESSION['job3'])){
+        $_SESSION['job3'] = $job;
+    }else{
+
+    }
+
+    
 }
 
 //POST送信がされていた場合
@@ -369,11 +386,18 @@ if(!empty($_POST)){
     $work_flg = (!empty($_POST['work'])) ? true : false;
     $employ_flg = (!empty($_POST['employ'])) ? true : false;
     $find_job_flg = (!empty($_POST['find-job'])) ? true : false;
-    $direct_monster_flg = (!empty($_POST['direct-monster'])) ? true : false;
-    $select_monster_flg = (!empty($_POST['select-monster'])) ? true : false;
+    $direct_flg = (!empty($_POST['direct'])) ? true : false;
+    
 
-    var_dump($_POST);
-    var_dump($panel1_flg);
+    var_dump($_SESSION['monster1']);
+    var_dump($_SESSION['monster2']);
+    var_dump($_SESSION['monster3']);
+
+    var_dump($_SESSION['job1']);
+    var_dump($_SESSION['job2']);
+    var_dump($_SESSION['job3']);
+
+    
     
     if($start_flg){
     
@@ -387,17 +411,47 @@ if(!empty($_POST)){
     }elseif($work_flg){
         History::set('働くのですね！どの仕事をしようか？');
         
-        
+        $_SESSION['work-select-check'] = true;
+
         
         
     }elseif($employ_flg){
         History::set('モンスターを雇うのですね');
+        createMonster();
+        
+        
+        
     }elseif($find_job_flg){
         History::set('仕事を探してこよう');
-    }elseif($direct_monster_flg){
+        createJob();
+
+    }elseif($direct_flg){
         History::set('どのモンスターに指示を出しますか？');
+        $_SESSION['direct-check'] = true;
+    
+    }elseif($_SESSION['direct-check']){
+        $select_monster_flg = (!empty($_POST['select-monster'])) ? true : false;
+        History::set('モンスターは何をしようか？');
+        $_SESSION['direct-check'] = '';
+        $_SESSION['monster-select-check'] = true;
+
+    }elseif($_SESSION['work-select-check'] || $_SESSION['monster-select-check']){
+        $select_job_flg = (!empty($_POST['select-job'])) ? true : false;
+
+        if($select_job_flg){
+            History::set('仕事をします');
+            $_SESSION['monster-select-check'] = '';
+            $_SESSION['work-select-check'] = '';
+        }
+        
+
+
+
+//        $_SESSION['monster-select-check'] = true;
+
     }else{
-        History::set('モンスター'.$_POST['select-monster'].'は何をしようか？');
+        History::set('aaaa');
+
     }
 
     
@@ -475,28 +529,34 @@ if(!empty($_POST)){
 
             <!-- 初期画面の処理-->
             <?php }elseif(!empty($_POST['reset'])){ ?>
-                <h1>ここには将来かっこいいアニメーションが入ります</h1>
-                <form method="post">
-                    <input type="submit" name="start" value="start" class="btn">
-                </form>
-                
+                <div class="initial-screen" >
+                    <h1>ここには将来かっこいいアニメーションが入ります</h1>
+                    <form method="post">
+                        <input type="submit" name="start" value="start" class="btn">
+                    </form>
+                </div>
                 
             <!-- メインのゲーム画面-->
             <?php }else{ ?>
-                <h1>ステータス＆アクション画面</h1>
                 <div class="container-game-area">
 
+                     <h1>ステータス＆アクション画面</h1>
+                    
+                    <!-- プレイヤーステータス -->
                     <div class="ceo-status-area">
                         <img src="<?php echo $_SESSION['ceo']->getImg() ?>" alt="" class="btn">
-
-                        <div>プレイヤーネーム</div>
-                        <div>残り期間</div>
-                        <div>資金：１００円</div>
-                        <div>HP：１００</div>
+                        <div class="status-area">
+                            <div class="status-area-top">
+                                <div><?php echo $_SESSION['ceo']->getName() ?></div>
+                                <div>残り期間</div>
+                            </div>
+                            <div>資金：<?php echo $_SESSION['ceo']->getMoney() ?>円</div>
+                            <div>HP：<?php echo $_SESSION['ceo']->getHp() ?></div>
+                        </div>
                     </div>
 
-
-                    <div class="message-area">
+                    <!-- メッセージエリア -->
+                    <div class="message-area js-auto-scroll">
                             <p>今日は何をしますか？</p>
 
                         <p><?php echo (!empty($_SESSION['history'])) ? $_SESSION['history'] : ''; ?></p>
@@ -509,10 +569,10 @@ if(!empty($_POST)){
 
                             <input type="submit" name="employ" value="雇う" class="btn">
 
-                            <input type="submit" name="find-job" value="仕事を探す" class="btn">
+                            <input type="submit" name="find-job" value="仕事探し" class="btn">
                             
                             
-                            <input type="submit" name="direct-monster" value="指示する" class="btn">
+                            <input type="submit" name="direct" value="指示する" class="btn">
 
                         </form>
 
@@ -523,17 +583,17 @@ if(!empty($_POST)){
                             <form method="post">
                                <input type="hidden" name="select-monster" value="1">
 
-                                <input type="image" src="img/monster01.png" name="select-monster" alt="送信する" value="test">
+                                <input type="image" src="<?php if(!empty($_SESSION["monster1"])) echo $_SESSION["monster1"]->getImg() ?>" name="select-monster" alt="送信する" value="test">
                             </form>
                             <form method="post">
                                 <input type="hidden" name="select-monster" value="2">
 
-                                <input type="image" src="img/monster02.png" name="select-monster" alt="送信する" value="test">
+                                <input type="image" src="<?php if(!empty($_SESSION["monster2"])) echo $_SESSION["monster2"]->getImg() ?>" name="select-monster" alt="送信する" value="test">
                             </form>
                             <form method="post">
                                 <input type="hidden" name="select-monster" value="3">
 
-                                <input type="image" src="img/monster03.png" name="select-monster" alt="送信する" value="test">
+                                <input type="image" src="<?php if(!empty($_SESSION["monster3"])) echo $_SESSION["monster3"]->getImg() ?>" name="select-monster" alt="送信する" value="test">
 
                             </form>
                         </div>
@@ -544,23 +604,23 @@ if(!empty($_POST)){
                         <div class="job-form-container">
                             <form method="post">
 
-                                <input type="hidden" name="panel4" value="4">
+                                <input type="hidden" name="select-job" value="1">
 
-                                <input type="image" src="img/job01.png" name="panel4" alt="送信する" value="test">
+                                <input type="image" src="<?php if(!empty($_SESSION["job1"])) echo $_SESSION["job1"]->getImg() ?>" name="select-job" alt="送信する" value="test">
                             </form>
 
                             <form method="post">
 
-                                <input type="hidden" name="panel5" value="5">
+                                <input type="hidden" name="select-job" value="2">
 
-                                <input type="image" src="img/job04.png" name="panel5" alt="送信する" value="test">
+                                <input type="image" src="img/job04.png" name="select-job" alt="送信する" value="test">
                             </form>
 
                             <form method="post">
 
-                                <input type="hidden" name="panel6" value="6">
+                                <input type="hidden" name="select-job" value="3">
 
-                                <input type="image" src="img/job10.png" name="panel6" alt="送信する" value="test">
+                                <input type="image" src="img/job10.png" name="select-job" alt="送信する" value="test">
 
                             </form>
                         </div>
@@ -598,6 +658,12 @@ if(!empty($_POST)){
             }); 
             
             
+            //自動スクロール
+            var $scrollAuto = $('.js-auto-scroll');
+            $scrollAuto.animate({scrollTop: $scrollAuto[0].scrollHeight}, 'fast');
+//            height = $('.js-auto-scroll')[0].scrollHeight;
+            height = $scrollAuto[0].scrollHeight;
+
         </script>
         
 
