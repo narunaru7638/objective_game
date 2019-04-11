@@ -11,9 +11,13 @@ session_start();
 $monsters = array();
 $jobs = array();
 
-//var_dump("a");
+var_dump($_POST);
 //print_r("a");
 
+var_dump($_SESSION['select-monster-no']);
+
+
+var_dump($_POST['select-monster']);
 //
 class Sex{
     const MAN = 0;
@@ -38,51 +42,44 @@ abstract class Creature{
     public function setName($str){
         $this->name = $str;
     }
-    
     public function getName(){
         return $this->name;
-    }
-    
-    
-    
-    
-    
-    
-    
+    }   
     public function setHp($str){
         $this->hp = $str;
     }
-    
-    
     public function getHp(){
         return $this->hp;
     }
-    
-    
     public function setImg($str){
         $this->img = $str;
     }
-    
-    
     public function getImg(){
         return $this->img;
     }
-    
-    public function doTask(){
+    public function setProcessing($str){
+        $this->processing = $str;
     }
-    
-    public function findTask(){
-        
+    public function getProcessing(){
+        return $this->processing;
     }
+
+    
+//    public function doTask(){
+//    }
+    
+//    public function findTask(){
+//        
+//    }
     
     
-//    abstract public function doTask();
+    abstract public function doTask();
 
     
     
 }
 
-class Ceo extends Creature{
+abstract class Ceo extends Creature{
     
     protected $money;
     
@@ -102,7 +99,8 @@ class Ceo extends Creature{
         $this->money = $str;
     }
 
-    
+    abstract public function doTask();
+
 }
 
 class Human extends Ceo{
@@ -132,9 +130,9 @@ class Human extends Ceo{
 //        
 //    }
 ////    
-//    public function doTask(){
-//
-//    }
+    public function doTask(){
+
+    }
     
 }
 
@@ -157,7 +155,8 @@ class Animal extends Ceo{
     public function setSpecies($str){
         $this->species = $str;
     }
-    
+    public function doTask(){
+    }
 }
 
 
@@ -179,6 +178,10 @@ class Monster extends Creature{
 //    public function doTask(){
 //
 //    }
+    
+    public function doTask(){
+        
+    }
 
 
 }
@@ -354,12 +357,18 @@ function createMonster(){
 //    var_dump($monsters);
     if(empty($_SESSION['monster1'])){
         $_SESSION['monster1'] = $monster;
+        History::set($_SESSION['monster1']->getName().'を雇いました');
+
     }elseif(empty($_SESSION['monster2'])){
         $_SESSION['monster2'] = $monster;
+        History::set($_SESSION['monster2']->getName().'を雇いました');
+
     }elseif(empty($_SESSION['monster3'])){
         $_SESSION['monster3'] = $monster;
+        History::set($_SESSION['monster3']->getName().'を雇いました');
+
     }else{
-        
+        History::set('これ以上雇えないよおおおおおおお');
     }
 }
 
@@ -375,19 +384,33 @@ function createJob(){
     
     if(empty($_SESSION['job1'])){
         $_SESSION['job1'] = $job;
+        History::set($_SESSION['job1']->getName().'の仕事を見けました。');
+
     }elseif(empty($_SESSION['job2'])){
         $_SESSION['job2'] = $job;
+        History::set($_SESSION['job2']->getName().'の仕事を見けました。');
+
     }elseif(empty($_SESSION['job3'])){
         $_SESSION['job3'] = $job;
+        History::set($_SESSION['job3']->getName().'の仕事を見けました。');
+
     }else{
-        
+        History::set('これ以上仕事は引き受けられないよoooooooo。');
     }
+    
 
     
 }
 
+//条件分岐のためのフラグを無くす関数
 function deleteFlg(){
-    
+    $start_flg = false;
+    $reset_flg = false;
+    $ceo_select_flg = false;
+    $work_flg = false;
+    $employ_flg = false;
+    $find_job_flg = false;
+    $direct_flg = false;
 }
 
 //POST送信がされていた場合
@@ -401,14 +424,11 @@ if(!empty($_POST)){
     $find_job_flg = (!empty($_POST['find-job'])) ? true : false;
     $direct_flg = (!empty($_POST['direct'])) ? true : false;
     
-//
-//    var_dump($_SESSION['monster1']);
-//    var_dump($_SESSION['monster2']);
-//    var_dump($_SESSION['monster3']);
-//
-//    var_dump($_SESSION['job1']);
-//    var_dump($_SESSION['job2']);
-//    var_dump($_SESSION['job3']);
+    if(!empty($_POST['select-monster'])){
+        $select_monster_no = $_POST['select-monster'];
+    }
+  var_dump($select_monster_no);  
+    var_dump($_POST['select-monster']);
 
     
     //ゲームスタートボタンを押した場合
@@ -417,11 +437,15 @@ if(!empty($_POST)){
     //リセットボタンを押した場合
     } elseif($reset_flg){
         $_SESSION = array();
+        deleteFlg();
+
 
     //プレイヤーキャラクターを決定した場合
     }elseif($ceo_select_flg){
         $select_char_no = (int)$_POST['ceo-select'];
         createCeo($select_char_no);
+        deleteFlg();
+
         
     //仕事があるときに働くを選択した場合
     }elseif($work_flg && (!empty($_SESSION['job1'] || $_SESSION['job2'] || $_SESSION['job3']))){
@@ -432,53 +456,78 @@ if(!empty($_POST)){
     //仕事がないときに働くを選択した場合
     }elseif($work_flg && (empty($_SESSION['job1'] && $_SESSION['job2'] && $_SESSION['job3']))){
         History::set('仕事がないよ。。。');
+        deleteFlg();
+
 
     //雇うを選択した場合
-    }elseif($employ_flg && (empty($_SESSION['monster1']) || empty($_SESSION['monster2']) || empty($_SESSION['monster3']))){
-        History::set('モンスターを雇いました');
+    }elseif($employ_flg){
         createMonster();
-
-    }elseif($employ_flg && (!empty($_SESSION['monster1'] && $_SESSION['monster2'] && $_SESSION['monster3']))){
-        History::set('これ以上雇えないよ');
-
-        
-    //仕事に空きがある状態で、仕事探しを選択した場合
-    }elseif($find_job_flg && (empty($_SESSION['job1']) || empty($_SESSION['job2']) || empty($_SESSION['job3']))){
-        History::set('仕事を見つけました。');
+        deleteFlg();
+    //仕事探しを選択した場合
+    }elseif($find_job_flg){
         createJob();
+        deleteFlg();
 
-    //仕事がいっぱいのとき
-    }elseif($find_job_flg && (!empty($_SESSION['job1'] && $_SESSION['job2'] && $_SESSION['job3']))){
-        History::set('これ以上仕事は引き受けられないよ。');
+
 
 
     //モンスターがいる状態で指示するを選択した場合
     }elseif($direct_flg && (!empty($_SESSION['monster1'] || $_SESSION['monster2'] || $_SESSION['monster3']))){
         History::set('どのモンスターに指示を出しますか？');
         $_SESSION['direct-check'] = true;
+//        $_SESSION['select-monster-no'] = "aaa";
+        $_SESSION['select-monster-no'] = $_POST['select-monster'];
+
 
     //モンスターがいない状態で指示するを選択した場合
 
     }elseif($direct_flg && (empty($_SESSION['monster1'] && $_SESSION['monster2'] && $_SESSION['monster3']))){
         History::set('モンスターがいないよ…');
+        deleteFlg();
         
-//    }elseif($direct_flg && (empty($_SESSION['job1'] && $_SESSION['job2'] && $_SESSION['job3']))){
-//        History::set('モンスターがする仕事がいないよ…');
-
-        
-
     //指示するモンスターを選択した場合
     }elseif($_SESSION['direct-check']){
-        $select_monster_flg = (!empty($_POST['select-monster'])) ? true : false;
         History::set('モンスターは何をしようか？');
+        History::set($_SESSION[$_POST['select-monster']]->getName().'は何をしようか？');
+        
+        $_SESSION['select-monster-no'] = $_POST['select-monster'];
+        
         $_SESSION['direct-check'] = '';
         $_SESSION['monster-select-check'] = true;
 
+    
+        
+        
     }elseif($_SESSION['work-select-check'] || $_SESSION['monster-select-check']){
+        
+//        $select_job = $_POST['select-job'];
+//        
+//        var_dump($_SESSION[$select_job]->getName());
+//        $_SESSION['monster3']->getName()
+        
         $select_job_flg = (!empty($_POST['select-job'])) ? true : false;
 
         if($select_job_flg){
-            History::set('仕事をします');
+            History::set($_SESSION[$_POST['select-job']]->getName().'の仕事をします');
+            
+            //プレイヤーキャラクターが仕事をした場合
+            if($_SESSION['work-select-check']){
+                //仕事の残りを減らす
+                $_SESSION[$_POST['select-job']]->setVolume( $_SESSION[$_POST['select-job']]->getVolume() - $_SESSION['ceo']->getProcessing());
+                //体力の残りを減らす
+                $_SESSION['ceo']->setHp( $_SESSION['ceo']->getHp() - 10);
+
+            //モンスターが仕事をした場合
+            }elseif($_SESSION['monster-select-check']){
+                //仕事の残りを減らす
+                $_SESSION[$_POST['select-job']]->setVolume( $_SESSION[$_POST['select-job']]->getVolume() - $_SESSION[$_SESSION['select-monster-no']]->getProcessing());
+                //体力の残りを減らす
+                $_SESSION[$_SESSION['select-monster-no']]->setHp( $_SESSION[$_SESSION['select-monster-no']]->getHp() - 10);
+
+            }
+            
+            
+            
             $_SESSION['monster-select-check'] = '';
             $_SESSION['work-select-check'] = '';
         }
@@ -620,7 +669,7 @@ if(!empty($_POST)){
                     <div class="monster-area">
                         <div class="monster-form-container"> 
                             <form method="post">
-                               <input type="hidden" name="select-monster" value="1">
+<!--                               <input type="hidden" name="select-monster" value="1">-->
                                 <?php 
                                     if(!empty($_SESSION["monster1"])){
                                         $img_monster1 = $_SESSION["monster1"]->getImg();
@@ -628,12 +677,15 @@ if(!empty($_POST)){
                                         $img_monster1 = 'img/lock2.png';
                                     }
                                 ?>
-                                <input class=input-monster-img type="submit" name="select-monster" alt="送信する" value="test">
+                                <input class=input-monster-img type="submit" name="select-monster" alt="送信する" value="monster1">
                                 <img src="<?php echo $img_monster1; ?>" alt="">
-                                <div class="monster-hp"><?php if(!empty($_SESSION["monster1"])) echo "HP:".$_SESSION["monster1"]->getHp() ?></div>
+                                
+                                
+                                
+                                <div class="monster-hp"><?php if(!empty($_SESSION["monster1"])) echo $_SESSION["monster1"]->getName()."&nbsp;HP:".$_SESSION["monster1"]->getHp() ?></div>
                             </form>
                             <form method="post">
-                                <input type="hidden" name="select-monster" value="2">
+<!--                                <input type="hidden" name="select-monster" value="2">-->
                                 <?php 
                                     if(!empty($_SESSION["monster2"])){
                                         $img_monster2 = $_SESSION["monster2"]->getImg();
@@ -641,14 +693,14 @@ if(!empty($_POST)){
                                         $img_monster2 = 'img/lock2.png';
                                     }
                                 ?>
-                                <input type="submit" name="select-monster" alt="送信する" value="test">
+                                <input type="submit" name="select-monster" alt="送信する" value="monster2">
                                 <img src="<?php echo $img_monster2; ?>" alt="">
 
-                                <div class="monster-hp"><?php if(!empty($_SESSION["monster2"])) echo "HP:".$_SESSION["monster2"]->getHp() ?></div>
+                                <div class="monster-hp"><?php if(!empty($_SESSION["monster2"])) echo $_SESSION["monster2"]->getName()."&nbsp;HP:".$_SESSION["monster2"]->getHp() ?></div>
 
                             </form>
                             <form method="post">
-                                <input type="hidden" name="select-monster" value="3">
+<!--                                <input type="hidden" name="select-monster" value="3">-->
                                 <?php 
                                     if(!empty($_SESSION["monster3"])){
                                         $img_monster3 = $_SESSION["monster3"]->getImg();
@@ -656,10 +708,10 @@ if(!empty($_POST)){
                                         $img_monster3 = 'img/lock2.png';
                                     }
                                 ?>
-                                <input type="submit" name="select-monster" alt="送信する" value="test">
+                                <input type="submit" name="select-monster" alt="送信する" value="monster3">
                                 <img src="<?php echo $img_monster3; ?>" alt="">
 
-                                <div class="monster-hp"><?php if(!empty($_SESSION["monster3"])) echo "HP:".$_SESSION["monster3"]->getHp() ?></div>
+                                <div class="monster-hp"><?php if(!empty($_SESSION["monster3"])) echo $_SESSION["monster3"]->getName()."&nbsp;HP:".$_SESSION["monster3"]->getHp() ?></div>
 
 
                             </form>
@@ -671,7 +723,7 @@ if(!empty($_POST)){
                         <div class="job-form-container">
                             <form method="post">
 
-                                <input type="hidden" name="select-job" value="1">
+<!--                                <input type="hidden" name="select-job" value="1">-->
                                 
                                 <?php 
                                     if(!empty($_SESSION["job1"])){
@@ -682,16 +734,16 @@ if(!empty($_POST)){
                                 ?>
 
 
-                                <input type="submit" name="select-job" alt="送信する" value="test">
+                                <input type="submit" name="select-job" alt="送信する" value="job1">
                                 <img src="<?php echo $img_job1; ?>" alt="">
 
-                                <div class="job-volume"><?php if(!empty($_SESSION["job1"])) echo "残り:".$_SESSION["job1"]->getVolume()."%" ?></div>
+                                <div class="job-volume"><?php if(!empty($_SESSION["job1"])) echo $_SESSION["job1"]->getName()."&nbsp;残り:".$_SESSION["job1"]->getVolume()."%" ?></div>
 
                             </form>
 
                             <form method="post">
 
-                                <input type="hidden" name="select-job" value="2">
+<!--                                <input type="hidden" name="select-job" value="2">-->
                                 
                                 <?php 
                                     if(!empty($_SESSION["job2"])){
@@ -702,17 +754,17 @@ if(!empty($_POST)){
                                 ?>
 
                                 
-                                <input type="submit" name="select-job" alt="送信する" value="test">
+                                <input type="submit" name="select-job" alt="送信する" value="job2">
                                 <img src="<?php echo $img_job2; ?>" alt="">
 
                                 
-                                <div class="job-volume"><?php if(!empty($_SESSION["job2"])) echo "残り:".$_SESSION["job2"]->getVolume()."%" ?></div>
+                                <div class="job-volume"><?php if(!empty($_SESSION["job2"])) echo $_SESSION["job2"]->getName()."&nbsp;残り:".$_SESSION["job2"]->getVolume()."%" ?></div>
 
                             </form>
 
                             <form method="post">
 
-                                <input type="hidden" name="select-job" value="3">
+<!--                                <input type="hidden" name="select-job" value="3">-->
                                 
                                 <?php 
                                     if(!empty($_SESSION["job3"])){
@@ -723,11 +775,11 @@ if(!empty($_POST)){
                                 ?>
 
 
-                                <input type="submit" name="select-job" alt="送信する" value="test">
+                                <input type="submit" name="select-job" alt="送信する" value="job3">
                                 <img src="<?php echo $img_job3; ?>" alt="">
 
                                 
-                                <div class="job-volume"><?php if(!empty($_SESSION["job3"])) echo "残り:".$_SESSION["job3"]->getVolume()."%" ?></div>
+                                <div class="job-volume"><?php if(!empty($_SESSION["job3"])) echo $_SESSION["job3"]->getName()."&nbsp;残り:".$_SESSION["job3"]->getVolume()."%" ?></div>
 
 
                             </form>
