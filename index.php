@@ -703,7 +703,7 @@ if(!empty($_POST)){
 
             <!-- キャラクター選択画面-->
 
-            <?php if(!empty($_POST['reset'])){ ?>
+            <?php if(empty($_SESSION) || !empty($_POST['reset'])){ ?>
 
             <div class="characters-select-area" >
                 <h1>キャラクターせんたく</h1>
@@ -751,8 +751,8 @@ if(!empty($_POST)){
             <?php }elseif($gameover_flg){ ?>
             <div class="gameover-screen" >
                 <h1>ゲームオーバー</h1>
-                <p><?php echo$_SESSION['ceo']->getName(); ?>のHPが0になりました。</p>
-                <p>あなたの記録は<i class="fas fa-coins"></i><?php echo$_SESSION['ceo']->getMoney(); ?>ギルです。</p>
+                <p><?php if(!empty($_SESSION['ceo'])) echo $_SESSION['ceo']->getName(); ?>のHPが0になりました。</p>
+                <p>あなたの記録は<i class="fas fa-coins"></i><?php if(!empty($_SESSION['ceo'])) echo $_SESSION['ceo']->getMoney(); ?>ギルです。</p>
                 <p>遊んでくれてありがとう！また遊んでね！</p>
 
                 
@@ -767,14 +767,14 @@ if(!empty($_POST)){
                     
                     <!-- プレイヤーステータス -->
                     <div class="ceo-status-area">
-                        <img src="<?php echo $_SESSION['ceo']->getImg() ?>" alt="" class="btn">
+                        <img src="<?php if(!empty($_SESSION['ceo'])) echo $_SESSION['ceo']->getImg() ?>" alt="" class="btn">
                         <div class="status-area">
                             <div class="status-area-top">
-                                <div><?php echo $_SESSION['ceo']->getName() ?></div>
+                                <div><?php if(!empty($_SESSION['ceo'])) echo $_SESSION['ceo']->getName() ?></div>
                             </div>
                             <div class="status-area-bottom">
-                                <div><i class="fas fa-coins"></i>：<?php echo $_SESSION['ceo']->getMoney() ?>ギル</div>
-                                <div><i class="fas fa-heart"></i>：<?php echo $_SESSION['ceo']->getHp() ?></div>
+                                <div><i class="fas fa-coins"></i>：<?php if(!empty($_SESSION['ceo'])) echo $_SESSION['ceo']->getMoney() ?>ギル</div>
+                                <div><i class="fas fa-heart"></i>：<?php if(!empty($_SESSION['ceo'])) echo $_SESSION['ceo']->getHp() ?></div>
                             </div>
                         </div>
                     </div>
@@ -790,16 +790,10 @@ if(!empty($_POST)){
                     <div class="container-command">
                         <form method="post">
                             <input type="submit" name="work" value="働く" class="btn">
-
                             <input type="submit" name="employ" value="雇う" class="btn">
-
                             <input type="submit" name="find-job" value="仕事探し" class="btn">
-                            
-                            
                             <input type="submit" name="direct" value="指示する" class="btn">
-
                         </form>
-
                     </div>
                     <!-- モンスター選択-->
                     <div class="monster-area">
@@ -819,13 +813,9 @@ if(!empty($_POST)){
                                 endif;
                                 ?>
                                 <img src="<?php echo $img_monster1; ?>" alt="">
-                                
-                                
-                                
                                 <div class="monster-hp"><?php if(!empty($_SESSION["monster1"])) echo $_SESSION["monster1"]->getName()."&nbsp;HP:".$_SESSION["monster1"]->getHp() ?></div>
                             </form>
                             <form method="post">
-<!--                                <input type="hidden" name="select-monster" value="2">-->
                                 <?php 
                                     if(!empty($_SESSION["monster2"])){
                                         $img_monster2 = $_SESSION["monster2"]->getImg();
@@ -833,23 +823,16 @@ if(!empty($_POST)){
                                         $img_monster2 = 'img/lock2.png';
                                     }
                                 ?>
-                                
                                 <?php     if(!empty($_SESSION["monster2"])): 
                                 ?>
                                 <input class=input-monster-img type="submit" name="select-monster" alt="送信する" value="monster2">
                                 <?php 
                                 endif;
                                 ?>
-
-                                
-                                
                                 <img src="<?php echo $img_monster2; ?>" alt="">
-
                                 <div class="monster-hp"><?php if(!empty($_SESSION["monster2"])) echo $_SESSION["monster2"]->getName()."&nbsp;HP:".$_SESSION["monster2"]->getHp() ?></div>
-
                             </form>
                             <form method="post">
-<!--                                <input type="hidden" name="select-monster" value="3">-->
                                 <?php 
                                     if(!empty($_SESSION["monster3"])){
                                         $img_monster3 = $_SESSION["monster3"]->getImg();
@@ -857,21 +840,14 @@ if(!empty($_POST)){
                                         $img_monster3 = 'img/lock2.png';
                                     }
                                 ?>
-                                
-                                
                                 <?php     if(!empty($_SESSION["monster3"])): 
                                 ?>
                                 <input class=input-monster-img type="submit" name="select-monster" alt="送信する" value="monster3">
                                 <?php 
                                 endif;
                                 ?>
-
-                                
                                 <img src="<?php echo $img_monster3; ?>" alt="">
-
                                 <div class="monster-hp"><?php if(!empty($_SESSION["monster3"])) echo $_SESSION["monster3"]->getName()."&nbsp;HP:".$_SESSION["monster3"]->getHp() ?></div>
-
-
                             </form>
                         </div>
 
@@ -880,9 +856,6 @@ if(!empty($_POST)){
                     <div class="job-area">
                         <div class="job-form-container">
                             <form method="post">
-
-<!--                                <input type="hidden" name="select-job" value="1">-->
-                                
                                 <?php 
                                     if(!empty($_SESSION["job1"])){
                                         $img_job1 = $_SESSION["job1"]->getImg();
@@ -890,29 +863,16 @@ if(!empty($_POST)){
                                         $img_job1 = 'img/lock1.png';
                                     }
                                 ?>
-
-
-                                
                                 <?php     if(!empty($_SESSION["job1"])): 
                                 ?>
                                 <input type="submit" name="select-job" alt="送信する" value="job1">
                                 <?php 
                                 endif;
                                 ?>
-
-                                
-                                
-                                
                                 <img src="<?php echo $img_job1; ?>" alt="">
-
                                 <div class="job-volume"><?php if(!empty($_SESSION["job1"])) echo $_SESSION["job1"]->getName()."&nbsp;残り:".$_SESSION["job1"]->getVolume()."%" ?></div>
-
                             </form>
-
                             <form method="post">
-
-<!--                                <input type="hidden" name="select-job" value="2">-->
-                                
                                 <?php 
                                     if(!empty($_SESSION["job2"])){
                                         $img_job2 = $_SESSION["job2"]->getImg();
@@ -920,8 +880,6 @@ if(!empty($_POST)){
                                         $img_job2 = 'img/lock1.png';
                                     }
                                 ?>
-
-                                
                                 <?php     if(!empty($_SESSION["job2"])): 
                                 ?>
                                 <input type="submit" name="select-job" alt="送信する" value="job2">
@@ -929,16 +887,9 @@ if(!empty($_POST)){
                                 endif;
                                 ?>
                                 <img src="<?php echo $img_job2; ?>" alt="">
-
-                                
                                 <div class="job-volume"><?php if(!empty($_SESSION["job2"])) echo $_SESSION["job2"]->getName()."&nbsp;残り:".$_SESSION["job2"]->getVolume()."%" ?></div>
-
                             </form>
-
                             <form method="post">
-
-<!--                                <input type="hidden" name="select-job" value="3">-->
-                                
                                 <?php 
                                     if(!empty($_SESSION["job3"])){
                                         $img_job3 = $_SESSION["job3"]->getImg();
@@ -946,8 +897,6 @@ if(!empty($_POST)){
                                         $img_job3 = 'img/lock1.png';
                                     }
                                 ?>
-
-
                                 <?php     if(!empty($_SESSION["job3"])): 
                                 ?>
                                 <input type="submit" name="select-job" alt="送信する" value="job3">
@@ -955,22 +904,13 @@ if(!empty($_POST)){
                                 endif;
                                 ?>
                                 <img src="<?php echo $img_job3; ?>" alt="">
-
-                                
                                 <div class="job-volume"><?php if(!empty($_SESSION["job3"])) echo $_SESSION["job3"]->getName()."&nbsp;残り:".$_SESSION["job3"]->getVolume()."%" ?></div>
-
-
                             </form>
                         </div>
                     </div>
-                
                 </div>
-
-                
-
             <?php }?>
         </div>
-
         <footer id="footer" class="site-width">
             <form method="post">
                 <input type="submit" name="reset" value="reset" class="btn">
@@ -1005,7 +945,6 @@ if(!empty($_POST)){
             //自動スクロール
             var $scrollAuto = $('.js-auto-scroll');
             $scrollAuto.animate({scrollTop: $scrollAuto[0].scrollHeight}, 'fast');
-//            height = $('.js-auto-scroll')[0].scrollHeight;
             height = $scrollAuto[0].scrollHeight;
 
         </script>
