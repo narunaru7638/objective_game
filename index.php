@@ -11,6 +11,9 @@ session_start();
 $monsters = array();
 $jobs = array();
 
+//var_dump("a");
+//print_r("a");
+
 //
 class Sex{
     const MAN = 0;
@@ -244,7 +247,7 @@ abstract class Job{
 
 //パワー系ジョブクラス
 class PowerJob extends Job{
-    public function __constract($name, $img, $volume, $necessaryPower, $necessaryCharm, $necessaryTechnique){
+    public function __construct($name, $img, $volume, $necessaryPower, $necessaryCharm, $necessaryTechnique){
         $this->name = $name;
         $this->img = $img;
         $this->volume = $volume;
@@ -258,7 +261,7 @@ class PowerJob extends Job{
 
 
 class CharmJob extends Job{
-    public function __constract($name, $img, $volume, $necessaryPower, $necessaryCharm, $necessaryTechnique){
+    public function __construct($name, $img, $volume, $necessaryPower, $necessaryCharm, $necessaryTechnique){
         $this->name = $name;
         $this->img = $img;
         $this->volume = $volume;
@@ -271,7 +274,7 @@ class CharmJob extends Job{
 }
 
 class TechniqueJob extends Job{
-    public function __constract($name, $img, $volume, $necessaryPower, $necessaryCharm, $necessaryTechnique){
+    public function __construct($name, $img, $volume, $necessaryPower, $necessaryCharm, $necessaryTechnique){
         $this->name = $name;
         $this->img = $img;
         $this->volume = $volume;
@@ -303,6 +306,12 @@ class History implements HistoryInterface{
     }
 }
 
+interface CeoMoneyCalculate{
+    
+    
+}
+    
+    
 /*====================================
 インスタンス生成
 ====================================*/
@@ -319,7 +328,7 @@ $monsters[] = new Monster('ドラキュラ', 100, 'img/monster03.png', 20);
 $monsters[] = new Monster('ガイコツ', 100, 'img/monster05.png', 20);
 $monsters[] = new Monster('ハンド', 100, 'img/monster06.png', 20);
 
-//
+//仕事のインスタンス
 $jobs[] = new PowerJob('データ分析','img/job01.png', 100, 0, 0, 0);
 $jobs[] = new PowerJob('プログラミング','img/job02.png', 100, 0, 0, 0);
 $jobs[] = new CharmJob('ライブ','img/job03.png', 100, 0, 0, 0);
@@ -342,7 +351,7 @@ $jobs[] = new TechniqueJob('執筆','img/job11.png', 100, 0, 0, 0);
 function createMonster(){
     global $monsters;
     $monster = $monsters[mt_rand(0, 3)];//４種類からランダムに作成
-    
+//    var_dump($monsters);
     if(empty($_SESSION['monster1'])){
         $_SESSION['monster1'] = $monster;
     }elseif(empty($_SESSION['monster2'])){
@@ -363,7 +372,7 @@ function createCeo($str){
 function createJob(){
     global $jobs;
     $job = $jobs[mt_rand(0, 10)];//11種類からランダムに作成
-
+    
     if(empty($_SESSION['job1'])){
         $_SESSION['job1'] = $job;
     }elseif(empty($_SESSION['job2'])){
@@ -371,9 +380,13 @@ function createJob(){
     }elseif(empty($_SESSION['job3'])){
         $_SESSION['job3'] = $job;
     }else{
-
+        
     }
 
+    
+}
+
+function deleteFlg(){
     
 }
 
@@ -388,47 +401,73 @@ if(!empty($_POST)){
     $find_job_flg = (!empty($_POST['find-job'])) ? true : false;
     $direct_flg = (!empty($_POST['direct'])) ? true : false;
     
-
-    var_dump($_SESSION['monster1']);
-    var_dump($_SESSION['monster2']);
-    var_dump($_SESSION['monster3']);
-
-    var_dump($_SESSION['job1']);
-    var_dump($_SESSION['job2']);
-    var_dump($_SESSION['job3']);
+//
+//    var_dump($_SESSION['monster1']);
+//    var_dump($_SESSION['monster2']);
+//    var_dump($_SESSION['monster3']);
+//
+//    var_dump($_SESSION['job1']);
+//    var_dump($_SESSION['job2']);
+//    var_dump($_SESSION['job3']);
 
     
-    
+    //ゲームスタートボタンを押した場合
     if($start_flg){
     
+    //リセットボタンを押した場合
     } elseif($reset_flg){
         $_SESSION = array();
 
-    
+    //プレイヤーキャラクターを決定した場合
     }elseif($ceo_select_flg){
         $select_char_no = (int)$_POST['ceo-select'];
         createCeo($select_char_no);
-    }elseif($work_flg){
+        
+    //仕事があるときに働くを選択した場合
+    }elseif($work_flg && (!empty($_SESSION['job1'] || $_SESSION['job2'] || $_SESSION['job3']))){
         History::set('働くのですね！どの仕事をしようか？');
         
         $_SESSION['work-select-check'] = true;
 
-        
-        
-    }elseif($employ_flg){
-        History::set('モンスターを雇うのですね');
+    //仕事がないときに働くを選択した場合
+    }elseif($work_flg && (empty($_SESSION['job1'] && $_SESSION['job2'] && $_SESSION['job3']))){
+        History::set('仕事がないよ。。。');
+
+    //雇うを選択した場合
+    }elseif($employ_flg && (empty($_SESSION['monster1']) || empty($_SESSION['monster2']) || empty($_SESSION['monster3']))){
+        History::set('モンスターを雇いました');
         createMonster();
+
+    }elseif($employ_flg && (!empty($_SESSION['monster1'] && $_SESSION['monster2'] && $_SESSION['monster3']))){
+        History::set('これ以上雇えないよ');
+
         
-        
-        
-    }elseif($find_job_flg){
-        History::set('仕事を探してこよう');
+    //仕事に空きがある状態で、仕事探しを選択した場合
+    }elseif($find_job_flg && (empty($_SESSION['job1']) || empty($_SESSION['job2']) || empty($_SESSION['job3']))){
+        History::set('仕事を見つけました。');
         createJob();
 
-    }elseif($direct_flg){
+    //仕事がいっぱいのとき
+    }elseif($find_job_flg && (!empty($_SESSION['job1'] && $_SESSION['job2'] && $_SESSION['job3']))){
+        History::set('これ以上仕事は引き受けられないよ。');
+
+
+    //モンスターがいる状態で指示するを選択した場合
+    }elseif($direct_flg && (!empty($_SESSION['monster1'] || $_SESSION['monster2'] || $_SESSION['monster3']))){
         History::set('どのモンスターに指示を出しますか？');
         $_SESSION['direct-check'] = true;
-    
+
+    //モンスターがいない状態で指示するを選択した場合
+
+    }elseif($direct_flg && (empty($_SESSION['monster1'] && $_SESSION['monster2'] && $_SESSION['monster3']))){
+        History::set('モンスターがいないよ…');
+        
+//    }elseif($direct_flg && (empty($_SESSION['job1'] && $_SESSION['job2'] && $_SESSION['job3']))){
+//        History::set('モンスターがする仕事がいないよ…');
+
+        
+
+    //指示するモンスターを選択した場合
     }elseif($_SESSION['direct-check']){
         $select_monster_flg = (!empty($_POST['select-monster'])) ? true : false;
         History::set('モンスターは何をしようか？');
@@ -582,18 +621,46 @@ if(!empty($_POST)){
                         <div class="monster-form-container"> 
                             <form method="post">
                                <input type="hidden" name="select-monster" value="1">
-
-                                <input type="image" src="<?php if(!empty($_SESSION["monster1"])) echo $_SESSION["monster1"]->getImg() ?>" name="select-monster" alt="送信する" value="test">
+                                <?php 
+                                    if(!empty($_SESSION["monster1"])){
+                                        $img_monster1 = $_SESSION["monster1"]->getImg();
+                                    }else{
+                                        $img_monster1 = 'img/lock2.png';
+                                    }
+                                ?>
+                                <input class=input-monster-img type="submit" name="select-monster" alt="送信する" value="test">
+                                <img src="<?php echo $img_monster1; ?>" alt="">
+                                <div class="monster-hp"><?php if(!empty($_SESSION["monster1"])) echo "HP:".$_SESSION["monster1"]->getHp() ?></div>
                             </form>
                             <form method="post">
                                 <input type="hidden" name="select-monster" value="2">
+                                <?php 
+                                    if(!empty($_SESSION["monster2"])){
+                                        $img_monster2 = $_SESSION["monster2"]->getImg();
+                                    }else{
+                                        $img_monster2 = 'img/lock2.png';
+                                    }
+                                ?>
+                                <input type="submit" name="select-monster" alt="送信する" value="test">
+                                <img src="<?php echo $img_monster2; ?>" alt="">
 
-                                <input type="image" src="<?php if(!empty($_SESSION["monster2"])) echo $_SESSION["monster2"]->getImg() ?>" name="select-monster" alt="送信する" value="test">
+                                <div class="monster-hp"><?php if(!empty($_SESSION["monster2"])) echo "HP:".$_SESSION["monster2"]->getHp() ?></div>
+
                             </form>
                             <form method="post">
                                 <input type="hidden" name="select-monster" value="3">
+                                <?php 
+                                    if(!empty($_SESSION["monster3"])){
+                                        $img_monster3 = $_SESSION["monster3"]->getImg();
+                                    }else{
+                                        $img_monster3 = 'img/lock2.png';
+                                    }
+                                ?>
+                                <input type="submit" name="select-monster" alt="送信する" value="test">
+                                <img src="<?php echo $img_monster3; ?>" alt="">
 
-                                <input type="image" src="<?php if(!empty($_SESSION["monster3"])) echo $_SESSION["monster3"]->getImg() ?>" name="select-monster" alt="送信する" value="test">
+                                <div class="monster-hp"><?php if(!empty($_SESSION["monster3"])) echo "HP:".$_SESSION["monster3"]->getHp() ?></div>
+
 
                             </form>
                         </div>
@@ -605,22 +672,63 @@ if(!empty($_POST)){
                             <form method="post">
 
                                 <input type="hidden" name="select-job" value="1">
+                                
+                                <?php 
+                                    if(!empty($_SESSION["job1"])){
+                                        $img_job1 = $_SESSION["job1"]->getImg();
+                                    }else{
+                                        $img_job1 = 'img/lock1.png';
+                                    }
+                                ?>
 
-                                <input type="image" src="<?php if(!empty($_SESSION["job1"])) echo $_SESSION["job1"]->getImg() ?>" name="select-job" alt="送信する" value="test">
+
+                                <input type="submit" name="select-job" alt="送信する" value="test">
+                                <img src="<?php echo $img_job1; ?>" alt="">
+
+                                <div class="job-volume"><?php if(!empty($_SESSION["job1"])) echo "残り:".$_SESSION["job1"]->getVolume()."%" ?></div>
+
                             </form>
 
                             <form method="post">
 
                                 <input type="hidden" name="select-job" value="2">
+                                
+                                <?php 
+                                    if(!empty($_SESSION["job2"])){
+                                        $img_job2 = $_SESSION["job2"]->getImg();
+                                    }else{
+                                        $img_job2 = 'img/lock1.png';
+                                    }
+                                ?>
 
-                                <input type="image" src="img/job04.png" name="select-job" alt="送信する" value="test">
+                                
+                                <input type="submit" name="select-job" alt="送信する" value="test">
+                                <img src="<?php echo $img_job2; ?>" alt="">
+
+                                
+                                <div class="job-volume"><?php if(!empty($_SESSION["job2"])) echo "残り:".$_SESSION["job2"]->getVolume()."%" ?></div>
+
                             </form>
 
                             <form method="post">
 
                                 <input type="hidden" name="select-job" value="3">
+                                
+                                <?php 
+                                    if(!empty($_SESSION["job3"])){
+                                        $img_job3 = $_SESSION["job3"]->getImg();
+                                    }else{
+                                        $img_job3 = 'img/lock1.png';
+                                    }
+                                ?>
 
-                                <input type="image" src="img/job10.png" name="select-job" alt="送信する" value="test">
+
+                                <input type="submit" name="select-job" alt="送信する" value="test">
+                                <img src="<?php echo $img_job3; ?>" alt="">
+
+                                
+                                <div class="job-volume"><?php if(!empty($_SESSION["job3"])) echo "残り:".$_SESSION["job3"]->getVolume()."%" ?></div>
+
 
                             </form>
                         </div>

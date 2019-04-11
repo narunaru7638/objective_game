@@ -11,7 +11,7 @@
     color: rgba(0,0,0,0.87);
 }
 .site-width{
-    width: 100%;
+    width: 100vw;
 }
 
 #main{
@@ -135,11 +135,15 @@ input[type=radio] {
 .message-area{
     background-color: gray;
     height: 40vw;
-    font-size: 3.5vw;
     overflow: scroll;
 }
 
+.message-area p{
+    font-size: 3.5vw;
+    -webkit-text-size-adjust:100%;
 
+
+}
 /*コマンドエリア*/
 .container-command .btn{
     width: 20vw;
@@ -163,11 +167,42 @@ input[type=radio] {
     overflow: hidden;
     margin: 0 auto;
 }
-
-.monster-area input{
-    float: left;
+.monster-form-container form{
     width: 30vw;
-    height: 18%;
+    float: left;
+    position: relative;
+/*
+    overflow: hidden;
+    margin: 0 auto;
+*/
+}
+.monster-form-container input{
+/*    float: left;*/
+    width: 30vw;
+    height: 30vw;
+    display: block;
+    background-color: aqua;
+    opacity: 0;
+    position: absolute;
+    top:0;
+    z-index: 2;
+}
+
+.monster-form-container img{
+    /*    float: left;*/
+    width: 30vw;
+    height: 30vw;
+    /*    display: block;*/
+    position: relative;
+    top: 0;
+    z-index: 1;
+}
+
+.monster-area .monster-hp{
+    width: 100%;
+    font-size: 2vw;
+
+/*    float: left;*/
 }
 
 
@@ -179,13 +214,39 @@ input[type=radio] {
     margin: 0 auto;
 }
 
-.job-area input{
-    float: left;
+.job-form-container form{
     width: 30vw;
-    height: 18%;
+    float: left;
+    position: relative;
+
 }
 
+.job-form-container input{
+    width: 30vw;
+    height: 30vw;
+    display: block;
+    background-color: aqua;
+    opacity: 0;
+    position: absolute;
+    top:0;
+    z-index: 2;
 
+}
+
+.job-form-container img{
+    /*    float: left;*/
+    width: 30vw;
+    height: 30vw;
+    /*    display: block;*/
+    position: relative;
+    top: 0;
+    z-index: 1;
+}
+
+.job-area .job-volume{
+    width: 100%;
+    font-size: 2vw;
+}
 /*
 ======================================
 フッター
