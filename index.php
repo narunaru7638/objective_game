@@ -115,12 +115,21 @@ abstract class Ceo extends Creature{
     public function doJob($select_job_no){
         //仕事の残りを減らす
         $_SESSION[$select_job_no]->setVolume( $_SESSION[$select_job_no]->getVolume() - $_SESSION['ceo']->getProcessing() * mt_rand(8, 15) / 10 );
-        
+
         //能力に応じてさらに仕事を減らす
         $_SESSION[$select_job_no]->reduceVolume($_SESSION['ceo']);
-        
+
+        if($_SESSION[$select_job_no]->getVolume() >= 0){
+            History::set($_SESSION[$select_job_no]->getName().'の業務が残り'.$_SESSION[$select_job_no]->getVolume().'%になりました。');
+        }
+
+
         //体力の残りを減らす
         $_SESSION['ceo']->setHp( $_SESSION['ceo']->getHp() - mt_rand(5,15));
+        
+        History::set($_SESSION['ceo']->getName().'のHPが残り'.$_SESSION['ceo']->getHp().'になりました。');
+
+        
     }
 }
 
@@ -176,8 +185,16 @@ class Animal extends Ceo{
         $_SESSION[$select_job_no]->setVolume( $_SESSION[$select_job_no]->getVolume() - $_SESSION['ceo']->getProcessing()* mt_rand(8, 12) / 10);
         //能力に応じてさらに仕事を減らす
         $_SESSION[$select_job_no]->reduceVolume($_SESSION['ceo']);
+        
+        if($_SESSION[$select_job_no]->getVolume() >= 0){
+            History::set($_SESSION[$select_job_no]->getName().'の業務が残り'.$_SESSION[$select_job_no]->getVolume().'%になりました。');
+        }
+
+        
         //体力の残りを減らす
         $_SESSION['ceo']->setHp( $_SESSION['ceo']->getHp() - mt_rand(5,10));
+        History::set($_SESSION['ceo']->getName().'のHPが残り'.$_SESSION['ceo']->getHp().'になりました。');
+
     }
 }
 
@@ -199,8 +216,17 @@ class Monster extends Creature{
         $_SESSION[$select_job_no]->setVolume( $_SESSION[$select_job_no]->getVolume() - $_SESSION[$_SESSION['select-monster-no']]->getProcessing() * mt_rand(8, 12) / 10);
         //能力に応じてさらに仕事を減らす
         $_SESSION[$select_job_no]->reduceVolume($_SESSION[$_SESSION['select-monster-no']]);
+
+        if($_SESSION[$select_job_no]->getVolume() >= 0){
+            History::set($_SESSION[$select_job_no]->getName().'の業務が残り'.$_SESSION[$select_job_no]->getVolume().'%になりました。');
+        }
+
+        
         //体力の残りを減らす
         $_SESSION[$_SESSION['select-monster-no']]->setHp( $_SESSION[$_SESSION['select-monster-no']]->getHp() - mt_rand(5,10));
+
+        History::set($_SESSION[$_SESSION['select-monster-no']]->getName().'のHPが残り'.$_SESSION[$_SESSION['select-monster-no']]->getHp().'になりました。');
+        
     }
 }
 
@@ -348,10 +374,10 @@ $ceos[] = new Animal('そこらへんの猿', 120, 'img/monkey.png', 10, 20, 50,
 $ceos[] = new Animal('イギー', 150, 'img/dog.png', 10, 40, 20, 20, 100, Species::DOG);
 
 //モンスターのインスタンス
-$monsters[] = new Monster('フランケン', 120, 'img/monster01.png', 20, 50, 20, 20);
-$monsters[] = new Monster('ドラキュラ', 80, 'img/monster03.png', 20, 30, 50, 40);
-$monsters[] = new Monster('ガイコツ', 150, 'img/monster05.png', 20, 30, 30, 30);
-$monsters[] = new Monster('ハンド', 80, 'img/monster06.png', 20, 20, 20, 60);
+$monsters[] = new Monster('フランケン', 50, 'img/monster01.png', 20, 50, 20, 20);
+$monsters[] = new Monster('ドラキュラ', 20, 'img/monster03.png', 20, 30, 50, 40);
+$monsters[] = new Monster('ガイコツ', 50, 'img/monster05.png', 20, 30, 30, 30);
+$monsters[] = new Monster('ハンド', 30, 'img/monster06.png', 20, 20, 20, 60);
 
 //仕事のインスタンス
 $jobs[] = new TechniqueJob('データ分析','img/job01.png', 100, 20000, 40);
@@ -405,17 +431,17 @@ function createJob(){
 
     if(empty($_SESSION['job1'])){
         $_SESSION['job1'] = $job;
-        History::set($_SESSION['job1']->getName().'の仕事を見けました。');
+        History::set($_SESSION['job1']->getName().'の仕事を依頼されました。');
         $_SESSION['ceo']->tired();
 
     }elseif(empty($_SESSION['job2'])){
         $_SESSION['job2'] = $job;
-        History::set($_SESSION['job2']->getName().'の仕事を見けました。');
+        History::set($_SESSION['job2']->getName().'の仕事を依頼されました。');
         $_SESSION['ceo']->tired();
 
     }elseif(empty($_SESSION['job3'])){
         $_SESSION['job3'] = $job;
-        History::set($_SESSION['job3']->getName().'の仕事を見けました。');
+        History::set($_SESSION['job3']->getName().'の仕事を依頼されました。');
         $_SESSION['ceo']->tired();
 
     }else{
@@ -439,7 +465,7 @@ function jobVolumeCheck($job_no){
     if(!empty($_SESSION[$job_no]) && $_SESSION[$job_no]->getVolume() <= 0){
         $income = $_SESSION[$job_no]->getPrice() * mt_rand(8, 12) / 10;
         $_SESSION['ceo']->setMoney( $_SESSION['ceo']->getMoney() + $income);
-
+        History::set($_SESSION[$job_no]->getName().'の仕事が完了しました。');
         History::set($_SESSION[$job_no]->getName().'の仕事で'.$income.'ギル手に入れた');
         $_SESSION[$job_no] = '';
     }
@@ -480,6 +506,8 @@ function gameReset(){
 //POST送信がされていた場合
 //==========================================
 if(!empty($_POST)){
+    History::clear();
+
     //リセットボタンをおしたときのフラグ
     $reset_flg = (!empty($_POST['reset'])) ? true : false;
     //プレイヤーキャラクターを選択したときの不タグ
@@ -510,23 +538,27 @@ if(!empty($_POST)){
 
     //雇うを選択した場合
     }elseif($employ_flg){
+        History::set('モンスターを雇うのですね。');
         createMonster();
         deleteFlg();
 
     //仕事探しを選択した場合
     }elseif($find_job_flg){
+        History::set('仕事を探すのですね。');
         createJob();
         deleteFlg();
 
     //働くを選択した場合
     }elseif($work_flg){
+        History::set('ご自身で働くのですね。');
         //仕事がない場合
         if(empty($_SESSION['job1']) && empty($_SESSION['job2']) && empty($_SESSION['job3'])){
-        History::set('仕事がないよ。');
+        History::set('仕事がありません。');
+        History::set('まずは仕事を探してみましょう。');
         deleteFlg();
         //仕事がある場合
         }elseif(!empty($_SESSION['job1']) || !empty($_SESSION['job2']) || !empty($_SESSION['job3'])){
-            History::set('働くのですね！どの仕事をしようか？');
+        History::set('どの仕事をしましょうか？');
             $_SESSION['work-select-check'] = true;//仕事選択中のフラグを立てる
         }else{
             History::set('エラーが発生しました。');
@@ -556,15 +588,18 @@ if(!empty($_POST)){
         }
     //指示するを選択した場合
     }elseif($direct_flg){
-        
+        History::set('モンスターに指示をするのですね。');
+
         //モンスターがいない場合
         if(empty($_SESSION['monster1']) && empty($_SESSION['monster2']) && empty($_SESSION['monster3'])){
-            History::set('モンスターがいないよ。');
+            History::set('指示できるモンスターがいません。');
+            History::set('まずはモンスターを雇ってみましょう。');
             deleteFlg();
 
         //仕事がない場合
         }elseif((!empty($_SESSION['monster1']) || !empty($_SESSION['monster2']) || !empty($_SESSION['monster3'])) && (empty($_SESSION['job1']) && empty($_SESSION['job2']) && empty($_SESSION['job3']))){
-            History::set('モンスターがする仕事がないよ。');
+            History::set('モンスターができる仕事がありません。');
+            History::set('まずは仕事を探してみましょう。');
             deleteFlg();
 
         //モンスターも仕事もある場合
@@ -583,7 +618,7 @@ if(!empty($_POST)){
     }elseif($_SESSION['direct-check']){
         //モンスターを選択した場合
         if(!empty($_POST['select-monster'])){
-            History::set($_SESSION[$_POST['select-monster']]->getName().'は何をしようか？');
+            History::set($_SESSION[$_POST['select-monster']]->getName().'は何をしましょうか？');
             //どのモンスターに指示を出そうとしているかの情報をセッションに格納
             $_SESSION['select-monster-no'] = $_POST['select-monster'];
             //選んだモンスターが仕事可能状態のフラグを立てる
@@ -593,7 +628,7 @@ if(!empty($_POST)){
         }elseif($_SESSION['monster-select-check']){
             //仕事を選択した場合
             if(!empty($_POST['select-job'])){
-                History::set('モンスターは'.$_SESSION[$_POST['select-job']]->getName().'の仕事をしました。');
+                History::set($_SESSION[$_SESSION['select-monster-no']]->getName().'は'.$_SESSION[$_POST['select-job']]->getName().'の仕事をしました。');
 
                 //指示した分プレイヤーは披露
                 $_SESSION['ceo']->tired();
@@ -601,34 +636,24 @@ if(!empty($_POST)){
                 $_SESSION[$_SESSION['select-monster-no']]->doJob($_POST['select-job']);
                 
                 //使ったセッションを空にする
-//                $_SESSION['direct-check'] = '';
-//                $_SESSION['monster-select-check'] = '';
-//                $_SESSION['select-monster-no'] = '';
                 deleteFlg();
-
+            //仕事以外を選択した場合
             }else{
                 History::set('それは選択できないよ。');
                 History::set('「指示する」から押し直してね。');
                 //使ったセッションを空にする
-//                $_SESSION['direct-check'] = '';
-//                $_SESSION['monster-select-check'] = '';
-//                $_SESSION['select-monster-no'] = '';
                 deleteFlg();
-
             }
         //モンスター以外を選択した場合
         }else{
             History::set('それは選択できないよ。');
             History::set('「指示する」から押し直してね。');
             //フラグとして使ったセッションを空にする
-    //        $_SESSION['direct-check'] = '';
-                deleteFlg();
+            deleteFlg();
         }
-        
     }else{
         History::set('それは選択できないよ');
         deleteFlg();
-
     }
 }
 //=======================================    
@@ -726,6 +751,7 @@ if(!empty($_POST)){
             <?php }elseif($gameover_flg){ ?>
             <div class="gameover-screen" >
                 <h1>ゲームオーバー</h1>
+                <p><?php echo$_SESSION['ceo']->getName(); ?>のHPが0になりました。</p>
                 <p>あなたの記録は<i class="fas fa-coins"></i><?php echo$_SESSION['ceo']->getMoney(); ?>ギルです。</p>
                 <p>遊んでくれてありがとう！また遊んでね！</p>
 
