@@ -428,7 +428,7 @@ if(!empty($_POST)){
         $select_monster_no = $_POST['select-monster'];
     }
   var_dump($select_monster_no);  
-    var_dump($_POST['select-monster']);
+ //    var_dump($_POST['select-monster']);
 
     
     //ゲームスタートボタンを押した場合
@@ -490,6 +490,7 @@ if(!empty($_POST)){
         History::set('モンスターは何をしようか？');
         History::set($_SESSION[$_POST['select-monster']]->getName().'は何をしようか？');
         
+        //どのモンスターに指示を出そうとしているかの情報をセッションに格納
         $_SESSION['select-monster-no'] = $_POST['select-monster'];
         
         $_SESSION['direct-check'] = '';
@@ -538,12 +539,39 @@ if(!empty($_POST)){
 //        $_SESSION['monster-select-check'] = true;
 
     }else{
-        History::set('aaaa');
+        History::set('それは選択できないよ');
 
     }
 
     
+    //モンスターのHPが0になったときの処理
+    function monsterHpCheck($monster_no){
+        if(!empty($_SESSION[$monster_no]) && $_SESSION[$monster_no]->getHp() <= 0){
+            var_dump('monsterHpCheck');
+            var_dump($monster_no);
+            $_SESSION[$monster_no] = '';
+        }
+    }
     
+    //仕事のボリュームが0になったときの処理
+    function jobVolumeCheck($job_no){
+        if(!empty($_SESSION[$job_no]) && $_SESSION[$job_no]->getVolume() <= 0){
+            $_SESSION[$job_no] = '';
+            $_SESSION['ceo']->setMoney( $_SESSION['ceo']->getMoney() + 10000);
+        }
+
+    }
+
+    //モンスターのHPが0かチェック
+    monsterHpCheck('monster1');
+    monsterHpCheck('monster2');
+    monsterHpCheck('monster3');
+
+    //仕事のボリュームが0かチェック
+    jobVolumeCheck('job1');
+    jobVolumeCheck('job2');
+    jobVolumeCheck('job3');
+
 
 }
 
